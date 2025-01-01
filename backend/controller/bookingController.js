@@ -30,9 +30,21 @@ const createBooking = async (req, res) => {
 const getBooking = async (req, res) => {
     try {
         //Code to get all the bookings and booking by id
-        res.status(200).json({message: "Booking Found"});
+        const id = req.params.id;
+        if(id){
+            const booking = await Booking.findById(id);
+            if(!booking){
+                return res.status(201).json({message: "Booking Not Found"});
+            }
+            return res.status(200).json({message: "Booking Found", booking});
+        }
+        const bookings = await Booking.find();
+        if(!bookings){
+            return res.status(404).json({message: "No Bookings Found"});
+        }
+        res.status(200).json({message: "Booking Found", bookings});
     } catch (error) {
-        res.status(500).json({message: "Server Error"});
+        return res.status(500).json({message: "Server Error"});
     }
 };
 

@@ -6,7 +6,9 @@ router.get('/', (req, res) => {
     res.send("Booking Api is running");
 });
 
-router.post(`/create`, bookingController.createBooking);
+router.get(`/getBooking?/:id?`, bookingController.getBooking);
+router.post(`/createBooking`, bookingController.createBooking);
+router.delete(`/deleteBooking?/:id`, bookingController.deleteBooking);
 
 
 export default router;
