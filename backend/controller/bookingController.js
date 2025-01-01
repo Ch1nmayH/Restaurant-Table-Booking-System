@@ -1,6 +1,27 @@
+import Booking from "../models/bookingSchema.js";
+
 const createBooking = async (req, res) => {
     try {
-        res.status(200).json({message: "Booking Created"});
+        const {name, email, phone, address, city, postalCode, numberOfGuests, DateForBooking, timeForBooking} = req.body;
+
+        //TO DO
+        //Code to check if the booking already exists for the available slot
+
+        //Creating the booking
+        const booking = await Booking.create({
+            name,
+            email,
+            phone,
+            address,
+            city,
+            postalCode,
+            numberOfGuests,
+            DateForBooking,
+            timeForBooking,
+            bookedAt: Date.now(),
+        })
+
+        res.status(200).json({message: "Booking Created", booking});
     } catch (error) {
         res.status(500).json({message: "Server Error"});
     }
@@ -8,6 +29,7 @@ const createBooking = async (req, res) => {
 
 const getBooking = async (req, res) => {
     try {
+        //Code to get all the bookings and booking by id
         res.status(200).json({message: "Booking Found"});
     } catch (error) {
         res.status(500).json({message: "Server Error"});
