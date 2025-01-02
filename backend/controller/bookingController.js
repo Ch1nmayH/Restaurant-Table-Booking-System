@@ -78,4 +78,49 @@ const deleteBooking = async (req, res) => {
   }
 };
 
-export default { createBooking, getBooking, deleteBooking };
+const checkBooking = async (req, res) => {
+
+  const availableTimeSlots = [
+    '14:00', '14:30', '15:00', '15:30', '16:00', '16:30', '17:00', '17:30', '18:00', '18:30', '19:00', '19:30'
+  ];
+
+  let newTimeSlots = [];
+
+  let  {date}  = req.query;
+
+  
+
+  try {
+    // Parse the selected date to ignore time part
+    let selectedDate = new Date(date);
+    selectedDate.setHours(10, 0, 0, 0); 
+
+   
+    
+    // Find bookings for the selected date
+    const existingBookings = await Booking.find({
+      DateForBooking: {
+        $gte: selectedDate, // Find bookings on the selected date
+        $lt: new Date(selectedDate.getTime() + 24 * 60 * 60 * 1000), // Next day's start time
+      },
+    });
+
+    availableTimeSlots.map((slot) => {
+      const isBooked = existingBookings.some((booking) => {
+        return booking.timeForBooking === slot;
+      });    
+      if (!isBooked) {
+        newTimeSlots.push(slot);
+      }
+    });
+        
+    return res.status(200).json({ "availableSlots" : newTimeSlots });
+  } catch (error) {
+    return res.status(500).json({ message: 'Internal Server Error' });
+  }
+
+}
+
+
+
+export default { createBooking, getBooking, deleteBooking, checkBooking };

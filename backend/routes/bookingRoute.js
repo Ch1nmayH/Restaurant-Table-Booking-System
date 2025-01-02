@@ -10,5 +10,8 @@ router.get(`/getBooking?/:id?`, bookingController.getBooking);
 router.post(`/createBooking`, bookingController.createBooking);
 router.delete(`/deleteBooking?/:id`, bookingController.deleteBooking);
 
+//check if the booking is available
+router.get(`/available-slots`, bookingController.checkBooking);
+
 
 export default router;
