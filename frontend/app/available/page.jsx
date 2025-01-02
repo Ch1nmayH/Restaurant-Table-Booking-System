@@ -5,6 +5,11 @@ import "react-calendar/dist/Calendar.css"; // Import the default styles
 import Link from "next/link";
 
 const AvailableCalender = () => {
+
+
+  //API base URL
+  const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+
   const [selectedDate, setSelectedDate] = useState(null);
   const [availableSlots, setAvailableSlots] = useState([]);
   const [error, setError] = useState("");
@@ -13,7 +18,7 @@ const AvailableCalender = () => {
     try {
       const formattedDate = date.toISOString().split("T")[0]; // Format date as 'YYYY-MM-DD'
       const response = await fetch(
-        `/api/available-slots?date=${formattedDate}`
+        `${API_BASE_URL}/api/booking/available-slots?date=${formattedDate}`
       );
       const data = await response.json();
       if (response.ok) {
