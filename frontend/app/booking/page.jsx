@@ -1,15 +1,15 @@
 'use client';
-import React from "react";
-import { useRouter } from 'next/router';
+import React, { useEffect } from "react";
+import { useRouter } from 'next/navigation'
 import { useState } from "react";
 import Link from "next/link";
 
 const booking = () => {
-
+  const router = useRouter()
   
   //API base URL
-  const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
-  
+  const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;  
+
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [mobile, setMobile] = useState("");
@@ -19,6 +19,20 @@ const booking = () => {
   const [postal, setPostal] = useState("");
   const [dateForBookingRequest, setDateForBookingRequest] = useState("");
   const [timeForBookingRequest, setTimeForBookingRequest] = useState("");
+
+  useEffect(() => {
+    if (router.isReady) {
+      console.log("Router is ready");
+      const { date, time } = router.query;
+      console.log("Router Query Params:", router.query);
+      if (date) setDateForBookingRequest(date);
+      if (time) setTimeForBookingRequest(time);
+    }
+  }, [router.isReady]);
+  
+  console.log("Current Query Params:", router.query);  // Log outside the effect
+
+  
  
   // Individual error states
   const [fullNameError, setFirstNameError] = useState("");
@@ -324,7 +338,7 @@ const booking = () => {
               className="block text-sm font-semibold mb-2"
               htmlFor="timeForBooking"
             >
-              Time For Booking
+              Time For Booking.{<span className="ml-[40px] text-sm">(visit {<Link href={'/available'} className="text-red-800 text-lg">slots</Link>} to get available slots.)</span>}
             </label>
             <input
               type="time"
