@@ -27,7 +27,7 @@ const NavBar = () => {
         
           Book
         </Link>
-        <Link href="/booking" className='text-black font-bold text-2xl hover:text-gray-500 border-none rounded-lg flex justify-between flex-col items-center md:text-2xl font-bold font-mono shadow-sm hover:shadow-2xl p-3 hover:border-3 cursor-pointer transition duration-500 ease-in-out'>
+        <Link href="/available" className='text-black font-bold text-2xl hover:text-gray-500 border-none rounded-lg flex justify-between flex-col items-center md:text-2xl font-bold font-mono shadow-sm hover:shadow-2xl p-3 hover:border-3 cursor-pointer transition duration-500 ease-in-out'>
         
           <CalendarMonthIcon />
         </Link>
@@ -68,7 +68,7 @@ const NavBar = () => {
        
             </li>
             <li>
-            <Link href="/booking" className='text-black font-bold text-2xl hover:text-gray-500 border-none rounded-lg flex justify-between flex-col items-center md:text-2xl font-bold font-mono shadow-sm hover:shadow-2xl p-3 hover:border-3 cursor-pointer transition duration-500 ease-in-out'>
+            <Link href="/available" className='text-black font-bold text-2xl hover:text-gray-500 border-none rounded-lg flex justify-between flex-col items-center md:text-2xl font-bold font-mono shadow-sm hover:shadow-2xl p-3 hover:border-3 cursor-pointer transition duration-500 ease-in-out'>
         
         <CalendarMonthIcon />
       </Link>

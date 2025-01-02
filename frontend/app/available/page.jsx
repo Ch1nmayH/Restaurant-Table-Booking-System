@@ -1,0 +1,91 @@
+"use client";
+import React, { useState, useEffect } from "react";
+import Calendar from "react-calendar";
+import "react-calendar/dist/Calendar.css"; // Import the default styles
+import Link from "next/link";
+
+const AvailableCalender = () => {
+  const [selectedDate, setSelectedDate] = useState(null);
+  const [availableSlots, setAvailableSlots] = useState([]);
+  const [error, setError] = useState("");
+
+  const fetchAvailableSlots = async (date) => {
+    try {
+      const formattedDate = date.toISOString().split("T")[0]; // Format date as 'YYYY-MM-DD'
+      const response = await fetch(
+        `/api/available-slots?date=${formattedDate}`
+      );
+      const data = await response.json();
+      if (response.ok) {
+        setAvailableSlots(data.availableSlots);
+      } else {
+        setError(data.message || "Failed to fetch available slots");
+      }
+    } catch (error) {
+      setError("Failed to fetch available slots");
+    }
+  };
+
+  useEffect(() => {
+    if (selectedDate) {
+      fetchAvailableSlots(selectedDate);
+    }
+  }, [selectedDate]);
+
+  const handleDateChange = (date) => {
+    setSelectedDate(date);
+  };
+
+  return (
+    <div className="max-w-4xl mx-auto p-4 space-y-4 flex items-center justify-center min-h-screen">
+      <div>
+        <h2 className="text-3xl font-semibold mb-4 text-gray-900 text-center bg-yellow-300 p-2 rounded-lg">
+          Select a Date
+        </h2>
+        
+        {/* Calendar Wrapper */}
+        <div className="flex justify-center items-center mb-8">
+          <div className="w-full max-w-md rounded-lg border shadow-lg p-4 bg-white">
+            <Calendar
+              onChange={handleDateChange}
+              value={selectedDate}
+              className="react-calendar"
+            />
+          </div>
+        </div>
+
+        <Link href="/"><h2 className="text-lg font-semibold mt-[30px] text-gray-900 text-center bg-red-300 p-1 rounded-lg mb-4">
+          Go Back
+        </h2></Link>
+
+        {/* Available Slots Display */}
+        {selectedDate && (
+          <div className="text-center">
+            <h3 className="text-lg font-semibold mb-4 text-white">
+              Available Slots for {selectedDate.toDateString()}:
+            </h3>
+            {availableSlots.length > 0 ? (
+              <ul className="space-y-2">
+                {availableSlots.map((slot, index) => (
+                  <li key={index} className="bg-gray-100 p-2 rounded-md">
+                    {slot}
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-white">No available slots for this date.</p>
+            )}
+          </div>
+        )}
+      
+      {error && (
+        <p className="text-red-500 text-center mt-4 text-2xl font-bolder">
+          {error}
+        </p>
+      )}
+      </div>
+    </div>
+  );
+};
+
+export default AvailableCalender;
