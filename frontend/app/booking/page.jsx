@@ -1,9 +1,15 @@
-"use client";
+'use client';
 import React from "react";
+import { useRouter } from 'next/router';
 import { useState } from "react";
 import Link from "next/link";
 
 const booking = () => {
+
+  
+  //API base URL
+  const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+  
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [mobile, setMobile] = useState("");
@@ -13,7 +19,7 @@ const booking = () => {
   const [postal, setPostal] = useState("");
   const [dateForBookingRequest, setDateForBookingRequest] = useState("");
   const [timeForBookingRequest, setTimeForBookingRequest] = useState("");
-
+ 
   // Individual error states
   const [fullNameError, setFirstNameError] = useState("");
   const [emailError, setEmailError] = useState("");
@@ -70,6 +76,7 @@ const booking = () => {
 
   const validateDateForBookingRequest = () => {
     if (!dateForBookingRequest) return "Date For Booking is required";
+    if(new Date(dateForBookingRequest) < new Date()) return "Date For Booking must be in the future";
     return "";
   };
 
@@ -117,6 +124,44 @@ const booking = () => {
     ) {
       return; // Exit if there are validation errors
     }
+
+    // Prepare data for submission
+    const data = {
+      name: fullName,
+      email,
+      phone : mobile,
+      address,
+      city,
+      postalCode : postal,
+      numberOfGuests,
+      DateForBooking : dateForBookingRequest,
+      timeForBooking : timeForBookingRequest,
+    };
+
+    // Submit data to the server
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/booking/createBooking`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (response.ok) {
+        setServerError("");
+        alert("Booking Successful");
+        // Redirect to the homepage
+        router.push("/");
+      } else {
+        const data = await response.json();
+        setServerError(data.message || "Something went wrong");
+      }
+    } catch (error) {
+      console.log(error)
+      setServerError("Something went wrong");
+    }
+
   };
 
   return (
@@ -264,7 +309,7 @@ const booking = () => {
               id="dateForBooking"
               name="dateForBooking"
               className="w-full px-3 py-2 border rounded-md"
-              onChange={(e) => dateForBookingRequest(e.target.value)}
+              onChange={(e) => setDateForBookingRequest(e.target.value)}
             />
             {dateForBookingRequestError && (
               <p className="text-red-500 text-sm">
@@ -286,7 +331,9 @@ const booking = () => {
               id="timeForBooking"
               name="timeForBooking"
               className="w-full px-3 py-2 border rounded-md"
-              onChange={(e) => timeForBookingRequest(e.target.value)}
+              max={"19:30"}
+              min={"14:00"}
+              onChange={(e) => setTimeForBookingRequest(e.target.value)}
             />
             {timeForBookingRequestError && (
               <p className="text-red-500 text-sm">

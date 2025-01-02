@@ -38,6 +38,12 @@ const AvailableCalender = () => {
   }, [selectedDate]);
 
   const handleDateChange = (date) => {
+    if(date < new Date()) {
+      setError("Please select a future date.");
+      setAvailableSlots([]);
+      return;
+    }
+    setError("");
     setSelectedDate(date);
   };
 
@@ -72,9 +78,11 @@ const AvailableCalender = () => {
             {availableSlots.length > 0 ? (
               <ul className="space-y-2">
                 {availableSlots.map((slot, index) => (
-                  <li key={index} className="bg-gray-100 p-2 rounded-md">
+                  <Link href={`/booking?date=${selectedDate.toISOString().split('T')[0]}&?time=${slot}`} className="text-black hover:text-gray-300">
+                  <li key={index} className="bg-gray-100 p-2 rounded-md mt-2 hover:bg-gray-400 text-black">
                     {slot}
                   </li>
+                  </Link>
                 ))}
               </ul>
             ) : (
