@@ -1,13 +1,36 @@
-'use client'
+"use client";
 import React from "react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import jsPDF from "jspdf";
-
+import Link from "next/link";
 
 const success = () => {
   const [bookingDetails, setBookingDetails] = useState(null);
   const [bookingId, setBookingId] = useState(null);
-    
+  const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+
+  const fetchBoking = async (id) => {
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/booking/getBooking/${id}`);
+      const data = await res.json();
+      // console.log(data.booking)
+      setBookingDetails(data.booking);
+      setBookingId(id);
+    } catch (error) {
+      console.log(error);
+      setBookingId(null);
+    }
+  };
+
+  useEffect(() => {
+    const id = new URLSearchParams(window.location.search).get("id");
+    if (id) {
+      fetchBoking(id);
+    } else {
+      setBookingId(null);
+    }
+  }, []);
+
   // Generate PDF Invoice
   const generatePDF = () => {
     const doc = new jsPDF();
@@ -36,35 +59,32 @@ const success = () => {
     doc.text(`City: ${city}`, 20, 90);
     doc.text(`Postal Code: ${postalCode}`, 20, 100);
     doc.text(`Number of Guests: ${numberOfGuests}`, 20, 110);
-    doc.text(`Booked for the date: ${DateForBooking}`, 20, 120);
+    doc.text(
+      `Booked for the date: ${DateForBooking.toLocaleString().split("T")[0]}`,
+      20,
+      120
+    );
     doc.text(`Booked for the time slot: ${timeForBooking}`, 20, 130);
     doc.text(
-      `Booking Date: ${new Date(bookingDate).toLocaleString()}`,
+      `Booking Date: ${new Date(bookingDetails.bookedAt).toLocaleString()}`,
       20,
       150
     );
-    doc.text(
-      `Booking Date: ${new Date(bookingDate).toLocaleString()}`,
-      20,
-      150
-    );
-
     doc.save(`booking_invoice_${bookingId}.pdf`);
   };
 
   if (!bookingDetails) {
     return (
       <div className="flex justify-center items-center h-screen">
-
-      
-      <div className="text-center text-red-500 text-xl p-3 bg-white shadow-lg rounded-lg flex justify-center items-center h-20 w-screen"> 
-       Booking not found!
-      </div>
+        <div className="text-center text-red-500 text-xl p-3 bg-white shadow-lg rounded-lg flex justify-center items-center h-20 w-screen">
+          Booking not found!
+        </div>
       </div>
     );
   }
 
   const {
+    _id,
     name,
     email,
     phone,
@@ -75,6 +95,7 @@ const success = () => {
     DateForBooking,
     timeForBooking,
     bookingDate,
+    bookedAt,
   } = bookingDetails;
 
   return (
@@ -90,58 +111,66 @@ const success = () => {
       {/* Booking Details */}
       <div className="space-y-4 text-gray-700">
         <div>
-          <span className="font-semibold">Booking ID:</span> {"bookingId"}
+          <span className="font-semibold">Booking ID:</span>{" "}
+          {bookingDetails._id}
         </div>
         <div>
-          <span className="font-semibold">Name:</span> {"name"}
+          <span className="font-semibold">Name:</span> {bookingDetails.name}
         </div>
         <div>
-          <span className="font-semibold">Email:</span> {"email"}
+          <span className="font-semibold">Email:</span> {bookingDetails.email}
         </div>
         <div>
-          <span className="font-semibold">Phone:</span> {"phone"}
+          <span className="font-semibold">Phone:</span> {bookingDetails.phone}
         </div>
 
         <div>
-          <span className="font-semibold">address:</span> {"address" || "N/A"}
+          <span className="font-semibold">address:</span>{" "}
+          {bookingDetails.address}
         </div>
         <div>
-          <span className="font-semibold">city:</span> {"city"}
+          <span className="font-semibold">city:</span> {bookingDetails.city}
         </div>
         <div>
-          <span className="font-semibold">postalCode:</span> {"postalCode"}
+          <span className="font-semibold">postalCode:</span>{" "}
+          {bookingDetails.postalCode}
         </div>
         <div>
           <span className="font-semibold">Number of Guests:</span>{" "}
-          {"numberOfGuests"}
+          {bookingDetails.numberOfGuests}
         </div>
         <div>
           <span className="font-semibold">Booked for the date :</span>{" "}
-          {"boked date"}
+          {bookingDetails.DateForBooking.toLocaleString().split("T")[0]}
         </div>
         <div>
-          <span className="font-semibold">Booked for the time slot :</span> $
-          {"booked time"}
+          <span className="font-semibold">Booked for the time slot :</span>
+          {bookingDetails.timeForBooking}
         </div>
         <div>
           <span className="font-semibold">Booking Date:</span>{" "}
-          {new Date("bookingDate").toLocaleString()}
+          {new Date(bookingDetails.bookedAt).toLocaleString()}
         </div>
       </div>
 
       {/* Buttons */}
       <div className="mt-8 flex justify-center gap-4">
         <button
-          //   onClick={() => window.print()}
+          onClick={() => window.print()}
           className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600"
         >
           Print Invoice
         </button>
         <button
-          //   onClick={generatePDF}
+          onClick={generatePDF}
           className="bg-green-500 text-white py-2 px-4 rounded hover:bg-green-600"
         >
           Download PDF
+        </button>
+        <button className="bg-red-500 text-white py-2 px-4 rounded hover:bg-red-600">
+          <Link href="/" className="text-white">
+            Go back to Homepage?
+          </Link>
         </button>
       </div>
     </div>
