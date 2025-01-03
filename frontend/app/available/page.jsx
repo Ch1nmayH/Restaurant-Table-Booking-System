@@ -81,8 +81,8 @@ const AvailableCalender = () => {
             {availableSlots.length > 0 ? (
               <ul  className="space-y-2">
                 {availableSlots.map((slot, index) => (
-                  <Link href={`/booking?date=${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, '0')}-${String(selectedDate.getDate()).padStart(2, '0')}&time=${slot}`} className="text-black hover:text-gray-300">
-                  <li key={index} className="bg-gray-100 p-2 rounded-md mt-2 hover:bg-gray-400 text-black">
+                  <Link key={index} href={`/booking?date=${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, '0')}-${String(selectedDate.getDate()).padStart(2, '0')}&time=${slot}`} className="text-black hover:text-gray-300">
+                  <li  className="bg-gray-100 p-2 rounded-md mt-2 hover:bg-gray-400 text-black">
                     {slot}
                   </li>
                   </Link>
