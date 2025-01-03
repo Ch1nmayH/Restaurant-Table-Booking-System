@@ -204,9 +204,9 @@ const booking = () => {
     <div className="flex flex-col justify-center items-center  bg-cover bg-center h-[100%]">
       <div className="w-full max-w-md p-6 bg-white rounded-lg shadow-lg mt-7 md:mt-20 mb-10">
         <h2 className="text-2xl font-semibold text-center mb-6">Book Now</h2>
-        {/* {serverError && (
+        {serverError && (
           <p className="text-red-500 text-center mb-4">{serverError}</p>
-        )} */}
+        )}
         <form className="flex flex-col" onSubmit={handleSubmit}>
           {/* First Name */}
           <div className="mb-4">
