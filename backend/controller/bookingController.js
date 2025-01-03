@@ -2,6 +2,21 @@ import Booking from "../models/bookingSchema.js";
 
 const createBooking = async (req, res) => {
   try {
+    const availableTimeSlots = [
+      "14:00",
+      "14:30",
+      "15:00",
+      "15:30",
+      "16:00",
+      "16:30",
+      "17:00",
+      "17:30",
+      "18:00",
+      "18:30",
+      "19:00",
+      "19:30",
+    ];
+
     const {
       name,
       email,
@@ -14,8 +29,26 @@ const createBooking = async (req, res) => {
       timeForBooking,
     } = req.body;
 
-    //TO DO
-    //Code to check if the booking already exists for the available slot
+    if(DateForBooking < Date.now()){
+      return res.status(400).json({ message: "Invalid Date" });
+    }
+
+    if(availableTimeSlots.includes(timeForBooking)){
+      const existingBookings = await Booking.find({
+        DateForBooking,
+        timeForBooking,
+      });
+
+      if (existingBookings.length > 0) {
+        return res.status(400).json({ message: "Time Slot Not Available" });
+      }
+    }
+
+    else{
+      return res.status(400).json({ message: "Invalid Time Slot" });
+    }
+    
+
 
     //Creating the booking
     const booking = await Booking.create({
@@ -79,24 +112,30 @@ const deleteBooking = async (req, res) => {
 };
 
 const checkBooking = async (req, res) => {
-
   const availableTimeSlots = [
-    '14:00', '14:30', '15:00', '15:30', '16:00', '16:30', '17:00', '17:30', '18:00', '18:30', '19:00', '19:30'
+    "14:00",
+    "14:30",
+    "15:00",
+    "15:30",
+    "16:00",
+    "16:30",
+    "17:00",
+    "17:30",
+    "18:00",
+    "18:30",
+    "19:00",
+    "19:30",
   ];
 
   let newTimeSlots = [];
 
-  let  {date}  = req.query;
-
-  
+  let { date } = req.query;
 
   try {
     // Parse the selected date to ignore time part
     let selectedDate = new Date(date);
-    selectedDate.setHours(10, 0, 0, 0); 
+    selectedDate.setHours(10, 0, 0, 0);
 
-   
-    
     // Find bookings for the selected date
     const existingBookings = await Booking.find({
       DateForBooking: {
@@ -108,19 +147,16 @@ const checkBooking = async (req, res) => {
     availableTimeSlots.map((slot) => {
       const isBooked = existingBookings.some((booking) => {
         return booking.timeForBooking === slot;
-      });    
+      });
       if (!isBooked) {
         newTimeSlots.push(slot);
       }
     });
-        
-    return res.status(200).json({ "availableSlots" : newTimeSlots });
+
+    return res.status(200).json({ availableSlots: newTimeSlots });
   } catch (error) {
-    return res.status(500).json({ message: 'Internal Server Error' });
+    return res.status(500).json({ message: "Internal Server Error" });
   }
-
-}
-
-
+};
 
 export default { createBooking, getBooking, deleteBooking, checkBooking };
