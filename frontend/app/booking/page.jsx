@@ -1,11 +1,9 @@
 'use client';
 import React, { useEffect } from "react";
-import { useRouter } from 'next/navigation'
 import { useState } from "react";
 import Link from "next/link";
 
 const booking = () => {
-  const router = useRouter()
   
   //API base URL
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;  
@@ -19,21 +17,45 @@ const booking = () => {
   const [postal, setPostal] = useState("");
   const [dateForBookingRequest, setDateForBookingRequest] = useState("");
   const [timeForBookingRequest, setTimeForBookingRequest] = useState("");
+  const [availableTimeSlots, setAvailableTimeSlots] = useState([]);
 
   useEffect(() => {
-    if (router.isReady) {
-      console.log("Router is ready");
-      const { date, time } = router.query;
-      console.log("Router Query Params:", router.query);
-      if (date) setDateForBookingRequest(date);
-      if (time) setTimeForBookingRequest(time);
-    }
-  }, [router.isReady]);
-  
-  console.log("Current Query Params:", router.query);  // Log outside the effect
+    const searchParams = new URLSearchParams(window.location.search); // Parse query params from URL
+    const date = searchParams.get("date");
+    const time = searchParams.get("time");
 
-  
- 
+    if (date) {
+      setDateForBookingRequest(date);
+      // console.log("Date:", date);
+    }
+    if (time) {
+      setTimeForBookingRequest(time);
+      // console.log("Time:", time);
+    }
+  }, []); // Empty dependency array ensures it runs once
+
+  useEffect(() => {
+    fetchAvailableTimeSlots();
+  }, [dateForBookingRequest]);
+
+  const fetchAvailableTimeSlots = async () => {
+      try {
+        let theDate = new Date();
+        theDate = theDate.toISOString().split("T")[0];
+        if(dateForBookingRequest){
+          theDate = dateForBookingRequest;
+        }
+        const response = await fetch(`${API_BASE_URL}/api/booking/available-slots?date=${theDate}`);
+        if (response.ok) {
+          const data = await response.json();
+          setAvailableTimeSlots(data.availableSlots);
+        } else {
+          console.error("Failed to fetch available time slots")
+        }
+      } catch (error) {
+        console.log(error);
+      }
+  };
   // Individual error states
   const [fullNameError, setFirstNameError] = useState("");
   const [emailError, setEmailError] = useState("");
@@ -310,7 +332,7 @@ const booking = () => {
             )}
           </div>
 
-          {/* Date for booing */}
+          {/* Date for booking */}
           <div className="mb-4">
             <label
               className="block text-sm font-semibold mb-2"
@@ -323,7 +345,9 @@ const booking = () => {
               id="dateForBooking"
               name="dateForBooking"
               className="w-full px-3 py-2 border rounded-md"
+              onClick={fetchAvailableTimeSlots}
               onChange={(e) => setDateForBookingRequest(e.target.value)}
+              value={dateForBookingRequest}
             />
             {dateForBookingRequestError && (
               <p className="text-red-500 text-sm">
@@ -340,15 +364,24 @@ const booking = () => {
             >
               Time For Booking.{<span className="ml-[40px] text-sm">(visit {<Link href={'/available'} className="text-red-800 text-lg">slots</Link>} to get available slots.)</span>}
             </label>
-            <input
-              type="time"
+            <select
               id="timeForBooking"
               name="timeForBooking"
               className="w-full px-3 py-2 border rounded-md"
-              max={"19:30"}
-              min={"14:00"}
               onChange={(e) => setTimeForBookingRequest(e.target.value)}
-            />
+              onClick={fetchAvailableTimeSlots}
+              value={timeForBookingRequest}
+            >
+              <option value="">Select Time</option>
+               {availableTimeSlots.map((time) => (
+                <option key={time} value={time}>
+                  {time}
+                </option>
+              ))  
+              }
+              {/* {console.log(availableTimeSlots)} */}
+            </select>
+            
             {timeForBookingRequestError && (
               <p className="text-red-500 text-sm">
                 {timeForBookingRequestError}
