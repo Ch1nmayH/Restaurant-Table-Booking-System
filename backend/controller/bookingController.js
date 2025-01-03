@@ -28,6 +28,7 @@ const createBooking = async (req, res) => {
       DateForBooking,
       timeForBooking,
     } = req.body;
+    
 
     if(DateForBooking < Date.now()){
       return res.status(400).json({ message: "Invalid Date" });
@@ -64,7 +65,7 @@ const createBooking = async (req, res) => {
       bookedAt: Date.now(),
     });
 
-    res.status(200).json({ message: "Booking Created", booking });
+    res.status(200).json({ message: "Booking Created", booking : booking._id });
   } catch (error) {
     res.status(500).json({ message: "Server Error" });
   }
@@ -134,7 +135,7 @@ const checkBooking = async (req, res) => {
   try {
     // Parse the selected date to ignore time part
     let selectedDate = new Date(date);
-    selectedDate.setHours(10, 0, 0, 0);
+    selectedDate.setHours(0, 0, 0, 0);
 
     // Find bookings for the selected date
     const existingBookings = await Booking.find({

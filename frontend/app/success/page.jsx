@@ -1,8 +1,12 @@
+'use client'
 import React from "react";
+import { useState } from "react";
+import jsPDF from "jspdf";
+
 
 const success = () => {
   const [bookingDetails, setBookingDetails] = useState(null);
-    const [bookingId, setBookingId] = useState(null);
+  const [bookingId, setBookingId] = useState(null);
     
   // Generate PDF Invoice
   const generatePDF = () => {
@@ -50,8 +54,12 @@ const success = () => {
 
   if (!bookingDetails) {
     return (
-      <div className="text-center mt-20 text-red-500 text-xl">
-        Booking not found!
+      <div className="flex justify-center items-center h-screen">
+
+      
+      <div className="text-center text-red-500 text-xl p-3 bg-white shadow-lg rounded-lg flex justify-center items-center h-20 w-screen"> 
+       Booking not found!
+      </div>
       </div>
     );
   }

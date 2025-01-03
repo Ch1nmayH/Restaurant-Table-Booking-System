@@ -16,12 +16,14 @@ const AvailableCalender = () => {
 
   const fetchAvailableSlots = async (date) => {
     try {
-      const formattedDate = date.toISOString().split("T")[0]; // Format date as 'YYYY-MM-DD'
+      const formattedDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;     
+      console.log(formattedDate);
       const response = await fetch(
         `${API_BASE_URL}/api/booking/available-slots?date=${formattedDate}`
       );
       const data = await response.json();
       if (response.ok) {
+        console.log(data.availableSlots)
         setAvailableSlots(data.availableSlots);
       } else {
         setError(data.message || "Failed to fetch available slots");
@@ -33,6 +35,7 @@ const AvailableCalender = () => {
 
   useEffect(() => {
     if (selectedDate) {
+      console.log(selectedDate);
       fetchAvailableSlots(selectedDate);
     }
   }, [selectedDate]);
@@ -76,9 +79,9 @@ const AvailableCalender = () => {
               Available Slots for {selectedDate.toDateString()}:
             </h3>
             {availableSlots.length > 0 ? (
-              <ul className="space-y-2">
+              <ul  className="space-y-2">
                 {availableSlots.map((slot, index) => (
-                  <Link href={`/booking?date=${selectedDate.toISOString().split('T')[0]}&time=${slot}`} className="text-black hover:text-gray-300">
+                  <Link href={`/booking?date=${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, '0')}-${String(selectedDate.getDate()).padStart(2, '0')}&time=${slot}`} className="text-black hover:text-gray-300">
                   <li key={index} className="bg-gray-100 p-2 rounded-md mt-2 hover:bg-gray-400 text-black">
                     {slot}
                   </li>

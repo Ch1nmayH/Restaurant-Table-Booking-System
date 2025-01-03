@@ -2,11 +2,13 @@
 import React, { useEffect } from "react";
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from 'next/navigation'; 
 
 const booking = () => {
   
   //API base URL
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;  
+  const router = useRouter();
 
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
@@ -28,6 +30,15 @@ const booking = () => {
       setDateForBookingRequest(date);
       // console.log("Date:", date);
     }
+
+    //  if(!date){
+    //   const today = new Date();
+    //   const todayString = today.toISOString().split("T")[0];
+    //   console.log(todayString);
+    //   setDateForBookingRequest(todayString);
+    // }
+
+    
     if (time) {
       setTimeForBookingRequest(time);
       // console.log("Time:", time);
@@ -36,26 +47,31 @@ const booking = () => {
 
   useEffect(() => {
     fetchAvailableTimeSlots();
-  }, [dateForBookingRequest]);
+  }, [dateForBookingRequest,timeForBookingRequest]);
 
-  const fetchAvailableTimeSlots = async () => {
-      try {
-        let theDate = new Date();
-        theDate = theDate.toISOString().split("T")[0];
-        if(dateForBookingRequest){
-          theDate = dateForBookingRequest;
-        }
-        const response = await fetch(`${API_BASE_URL}/api/booking/available-slots?date=${theDate}`);
-        if (response.ok) {
-          const data = await response.json();
-          setAvailableTimeSlots(data.availableSlots);
-        } else {
-          console.error("Failed to fetch available time slots")
-        }
-      } catch (error) {
-        console.log(error);
+
+  const fetchAvailableTimeSlots = async (date) => {
+    try {
+      let theDate = new Date();
+      theDate = theDate.toISOString().split("T")[0];
+      if(dateForBookingRequest){
+        theDate = dateForBookingRequest;
       }
+      const response = await fetch(
+        `${API_BASE_URL}/api/booking/available-slots?date=${theDate}`
+      );
+      const data = await response.json();
+      if (response.ok) {
+        setAvailableTimeSlots(data.availableSlots);
+      } else {
+        setServerError(data.message || "Failed to fetch available slots");
+      }
+    } catch (error) {
+      setServerError("Failed to fetch available slots");
+    }
   };
+
+
   // Individual error states
   const [fullNameError, setFirstNameError] = useState("");
   const [emailError, setEmailError] = useState("");
@@ -112,10 +128,20 @@ const booking = () => {
 
   const validateDateForBookingRequest = () => {
     if (!dateForBookingRequest) return "Date For Booking is required";
-    if(new Date(dateForBookingRequest) < new Date()) return "Date For Booking must be in the future";
+
+    const selectedDate = new Date(dateForBookingRequest);
+    selectedDate.setHours(0, 0, 0, 0);
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    if(selectedDate < today) return "Date For Booking must be in the future";
     return "";
   };
 
+  const handleRedirect = (_id) => {
+    console.log('Redirecting to /success');
+    router.push(`/success?id=${_id}`);
+  };
   const validateTimeForBookingRequest = () => {
     if (!timeForBookingRequest) return "Time For Booking is required";
     return "";
@@ -185,10 +211,9 @@ const booking = () => {
       });
 
       if (response.ok) {
+        const data = await response.json();
         setServerError("");
-        alert("Booking Successful");
-        // Redirect to the homepage
-        router.push("/");
+        handleRedirect(data.booking);
       } else {
         const data = await response.json();
         setServerError(data.message || "Something went wrong");
